@@ -1,0 +1,21 @@
+{
+  "name": "ltc-trading-bot",
+  "version": "0.0.0",
+  "description": "Trading bot for LTC.",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "btc",
+    "ltc",
+    "trading",
+    "bot"
+  ],
+  "author": "Xavier Talpe",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "express": "^4.3.0",
+    "logfmt": "^1.1.2"
+  }
+}
