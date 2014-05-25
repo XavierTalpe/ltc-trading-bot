@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var KrakenApi = require( 'kraken-api' );
 var Mongo = require( 'mongodb' );
 
