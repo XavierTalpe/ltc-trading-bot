@@ -13,7 +13,7 @@ var insertIntoDb = function( tickerData ) {
       });
     }
   });
-}
+};
 
 router.get('/', function(request, response) {
   var krakenApi = new KrakenApi('api_key', 'api_secret');
