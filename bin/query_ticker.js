@@ -30,6 +30,7 @@ function parseData( data ) {
   tick.ha_low = parseFloat( tick_ltc_eur[ 'l' ][ 1 ] );
   tick.ha_high = parseFloat( tick_ltc_eur[ 'h' ][ 1 ] );
   tick.opening_price = parseFloat( tick_ltc_eur[ 'o' ] );
+  tick.datetime = new Date();
 
   return tick;
 }
