@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+var Mongo = require( 'mongodb' );
+
+var NB_OF_MONTHS_TO_SAVE_DATE = 3;
+
+Mongo.Db.connect( process.env.MONGOLAB_URI, function ( error, database ) {
+  if ( error ) {
+    console.log( 'Error connecting to database ' + error );
+  }
+  else {
+    cleanTickerCollection( database );
+  }
+} );
+
+function cleanTickerCollection( database ) {
+  database.collection( 'ticker', function ( error, collection ) {
+    if ( error ) {
+      console.log( 'Error opening collection ' + error );
+    }
+    else {
+      var minDate = new Date();
+      minDate.setMonth( minDate.getMonth() - NB_OF_MONTHS_TO_SAVE_DATE );
+
+      var query = {'datetime': {$lt: minDate.getTime()}};
+
+      collection.remove( query, function ( error, results ) {
+        if ( error ) {
+          console.log( 'Error querying database ' + error );
+        }
+
+        database.close();
+      } );
+    }
+  } );
+}
