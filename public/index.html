@@ -1,10 +1,158 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <script type="text/javascript">
+        var tickerData;
+
+        var xhReq = new XMLHttpRequest();
+        xhReq.open( 'GET', '/ticker', false );
+        xhReq.onreadystatechange = function () {
+            if ( this.readyState == this.DONE ) {
+                tickerData = JSON.parse( this.responseText );
+            }
+        };
+        xhReq.send();
+
+        function asLine( tickerData, transformation ) {
+            var result = [];
+
+            tickerData.forEach( function ( tick ) {
+                var datetime = new Date( tick.datetime );
+
+                result.push( { x: datetime, y: transformation( tick ) } );
+            } );
+
+            return result;
+        }
+
+        function asEmaLine( tickerData, transformation, windowSize ) {
+            var result = [];
+
+            var ema;
+            var k = 2.0 / (windowSize + 1.0);
+
+            tickerData.forEach( function ( tick ) {
+                var datetime = new Date( tick.datetime );
+
+                var value = transformation( tick );
+
+                if ( !ema ) {
+                    ema = value;
+                }
+                else {
+                    ema = value * k + ema * ( 1.0 - k );
+                }
+
+                result.push( { x: datetime, y: ema } )
+            } );
+
+            return result;
+        }
+
+        var average = asLine( tickerData, function ( tick ) {
+            return tick.avg_price;
+        } );
+
+        var highestBid = asLine( tickerData, function ( tick ) {
+            return tick.highest_bid;
+        } );
+
+        var lowestAsk = asLine( tickerData, function ( tick ) {
+            return tick.lowest_ask;
+        } );
+
+        var TICKS_PER_HOUR = 6;
+        var getAvg = function ( tick ) {
+            return tick.last_trade;
+        };
+
+        var ema2Hours = asEmaLine( tickerData, getAvg, 2 * TICKS_PER_HOUR );
+        var ema4Hours = asEmaLine( tickerData, getAvg, 4 * TICKS_PER_HOUR );
+        var ema8Hours = asEmaLine( tickerData, getAvg, 8 * TICKS_PER_HOUR );
+        var ema12Hours = asEmaLine( tickerData, getAvg, 12 * TICKS_PER_HOUR );
+        var ema24Hours = asEmaLine( tickerData, getAvg, 24 * TICKS_PER_HOUR );
+
+
+        window.onload = function () {
+            var chart = new CanvasJS.Chart( "chartContainer",
+                                            {
+                                                zoomEnabled: true,
+                                                panEnabled: true,
+                                                axisY: {
+                                                    includeZero: false
+                                                },
+                                                title: {
+                                                    text: 'LTCXEUR - Last 24 hours'
+                                                },
+                                                legend: {
+                                                    horizontalAlign: "left",
+                                                    verticalAlign: "center",
+                                                    fontSize: 14
+                                                },
+                                                data: [
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'Average',
+                                                        type: 'line',
+                                                        color: 'rgba(151,187,205,1)',
+                                                        dataPoints: average
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'Highest Bid',
+                                                        type: 'line',
+                                                        color: 'green',
+                                                        dataPoints: highestBid
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'Lowest Ask',
+                                                        type: 'line',
+                                                        color: 'red',
+                                                        dataPoints: lowestAsk
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'EMA 2h',
+                                                        type: 'line',
+                                                        dataPoints: ema2Hours
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'EMA 4h',
+                                                        type: 'line',
+                                                        dataPoints: ema4Hours
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'EMA 8h',
+                                                        type: 'line',
+                                                        dataPoints: ema8Hours
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'EMA 12h',
+                                                        type: 'line',
+                                                        dataPoints: ema12Hours
+                                                    },
+                                                    {
+                                                        showInLegend: true,
+                                                        legendText: 'EMA 24h',
+                                                        type: 'line',
+                                                        dataPoints: ema24Hours
+                                                    }
+                                                ]
+                                            } );
+
+            chart.render();
+        }
+    </script>
+    <script type="text/javascript" src="./javascripts/canvasjs.min.js"></script>
 </head>
 <body>
-
+<div id="chartContainer" style="height: 400px; width: 100%;">
+</div>
 </body>
 </html>
